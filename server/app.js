@@ -10,7 +10,7 @@ let nextOrderId = 1;
 
 app.get('/api/menu', (req, res) => {
   const veg = req.query.veg;
-  if (veg === true) {
+  if (veg === 'true') {
     return res.json(menu.filter((dish) => dish.isVeg));
   }
   return res.json(menu);
@@ -24,7 +24,12 @@ app.post('/api/orders', (req, res) => {
   const { dishId, quantity } = req.body;
 
   const dish = menu.find((item) => item.id === dishId);
-
+  if (!dish) {
+    return res.status(404).json({ error: 'Dish not found' });
+  }
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+    return res.status(400).json({ error: 'Quantity must be an integer between 1 and 10' });
+  }
   const order = {
     id: nextOrderId++,
     dishId,
